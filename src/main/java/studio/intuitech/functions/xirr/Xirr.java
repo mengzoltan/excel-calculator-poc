@@ -2,33 +2,32 @@ package studio.intuitech.functions.xirr;
 
 import java.util.function.BiFunction;
 
-/*
- Based on:
- Class Xirr from https://stackoverflow.com/questions/36789967/java-program-to-calculate-xirr-without-using-excel-or-any-other-library
-*/
 final class Xirr {
 
-    public static BiFunction<XirrContext, Double, Double> total_f_xirr = (XirrContext context, Double x0) -> {
-        double resf = 0d;
-        for (int i = 0; i < context.payments().length; i++) {
-            resf = resf + f_xirr(context.payments()[i], context.days()[i], context.days()[0], x0);
-        }
+    public static BiFunction<XirrContext, Double, Double> f = (context, rate) -> {
+        double sum = 0.0;
+        double[] values = context.payments();
+        double[] dates = context.days();
+        double date0 = dates[0];
 
-        return resf;
-    };
-    public static BiFunction<XirrContext, Double, Double> total_df_xirr = (XirrContext context, Double x0) -> {
-        double resf = 0d;
-        for (int i = 0; i < context.payments().length; i++) {
-            resf = resf + df_xirr(context.payments()[i], context.days()[i], context.days()[0], x0);
+        for (int i = 0; i < values.length; i++) {
+            double dt = (dates[i] - date0) / 365.0;
+            sum += values[i] / Math.pow(1.0 + rate, dt);
         }
-        return resf;
+        return sum;
     };
 
-    private static double f_xirr(double p, double dt, double dt0, double x) {
-        return p * Math.pow((x + 1d), (dt0 - dt) / 365d);
-    }
+    public static BiFunction<XirrContext, Double, Double> df = (context, rate) -> {
+        double sum = 0.0;
+        double[] values = context.payments();
+        double[] dates = context.days();
+        double date0 = dates[0];
 
-    private static double df_xirr(double p, double dt, double dt0, double x) {
-        return (1d / 365d) * (dt0 - dt) * p * Math.pow((x + 1d), ((dt0 - dt) / 365d) - 1d);
-    }
+        for (int i = 0; i < values.length; i++) {
+            double dt = (dates[i] - date0) / 365.0;
+            sum -= dt * values[i] / Math.pow(1.0 + rate, dt + 1);
+        }
+        return sum;
+    };
+
 }

@@ -26,7 +26,7 @@ public class XirrFunction implements FreeRefFunction, Handler<Event> {
         this.workbook = workbook;
     }
 
-    static final void checkValue(double result) throws EvaluationException {
+    private static void checkValue(double result) throws EvaluationException {
         if (Double.isNaN(result) || Double.isInfinite(result)) {
             throw new EvaluationException(ErrorEval.NUM_ERROR);
         }
@@ -91,7 +91,7 @@ public class XirrFunction implements FreeRefFunction, Handler<Event> {
         NewtonConfig config = new NewtonConfig(tolerance, epsilon, maxIterations);
         XirrContext context = new XirrContext(values, dates, guess);
 
-        return NewtonsMethod.newtonsMethod(0d, 0d, context, Xirr.total_f_xirr, Xirr.total_df_xirr, config);
+        return NewtonsMethod.newtonsMethod(0d, 0d, context, Xirr.f, Xirr.df, config);
 
     }
 
@@ -102,7 +102,7 @@ public class XirrFunction implements FreeRefFunction, Handler<Event> {
         }
     }
 
-    static final class ValueCollector extends MultiOperandNumericFunction {
+    final static class ValueCollector extends MultiOperandNumericFunction {
         private static final ValueCollector instance = new ValueCollector();
 
         public ValueCollector() {
